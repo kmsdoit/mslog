@@ -1,6 +1,8 @@
 package com.mslog.mslog.controller;
 
+import com.mslog.mslog.domain.Post;
 import com.mslog.mslog.request.PostCreateDto;
+import com.mslog.mslog.response.PostResponse;
 import com.mslog.mslog.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,5 +43,16 @@ public class PostController {
     public void post(@RequestBody @Valid PostCreateDto request){
         // POST -> 200, 201
         postService.write(request);
+    }
+
+    /**
+     * /posts -> 글 전체 조회(검색 + 페이징)
+     * /posts/{postId}
+     * */
+    @GetMapping("/posts/{postId}")
+    public PostResponse get(@PathVariable(name = "postId") Long id) {
+        PostResponse response = postService.get(id);
+        // 서비스 정책에 맞는 응답 클래스 분리
+        return response;
     }
 }
