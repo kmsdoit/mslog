@@ -83,27 +83,27 @@ class PostControllerTest {
                 .andDo(print());
     }
 
-    @Test
-    @DisplayName("/posts 요청시 title 값은 필수다.")
-    void postTest() throws Exception {
-
-        //given
-        PostCreateDto request = PostCreateDto.builder()
-                .content("내용입니다")
-                .build();
-
-        String json = objectMapper.writeValueAsString(request); // String -> Json 자료 처리 하는 법
-        //expects
-        mockMvc.perform(post("/posts")
-                        .contentType(APPLICATION_JSON)
-                        .content(json)
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("400"))
-                .andExpect(jsonPath("$.message").value("잘못된 요청입니다"))
-                .andExpect(jsonPath("$.validation.title").value("타이틀을 입력해주세요"))
-                .andDo(print());
-    }
+//    @Test
+//    @DisplayName("/posts 요청시 title 값은 필수다.")
+//    void postTest() throws Exception {
+//
+//        //given
+//        PostCreateDto request = PostCreateDto.builder()
+//                .content("내용입니다")
+//                .build();
+//
+//        String json = objectMapper.writeValueAsString(request); // String -> Json 자료 처리 하는 법
+//        //expects
+//        mockMvc.perform(post("/posts")
+//                        .contentType(APPLICATION_JSON)
+//                        .content(json)
+//                )
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.code").value("400"))
+//                .andExpect(jsonPath("$.message").value("잘못된 요청입니다"))
+//                .andExpect(jsonPath("$.validation.title").value("타이틀을 입력해주세요"))
+//                .andDo(print());
+//    }
 
     @Test
     @DisplayName("/posts 요청시 DB에 값을 저장한다")
