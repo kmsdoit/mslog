@@ -1,15 +1,21 @@
 package com.mslog.mslog.controller;
 
 import com.mslog.mslog.domain.Post;
+import com.mslog.mslog.domain.PostEditor;
+import com.mslog.mslog.exception.InvalidRequest;
 import com.mslog.mslog.request.PostCreateDto;
+import com.mslog.mslog.request.PostEdit;
+import com.mslog.mslog.request.PostSearch;
 import com.mslog.mslog.response.PostResponse;
 import com.mslog.mslog.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Map;
+import java.util.List;
 
 @Slf4j
 @RestController // 데이터 기반으로 가용할 떄는 RestController 사용
@@ -32,9 +38,10 @@ public class PostController {
 
     private final PostService postService;
 
+    // 글이 너무 많은 경우 -> 비용이 많이 든다
     @GetMapping("/posts")
-    public String get() {
-        return "Hello World";
+    public List<PostResponse> getList(@ModelAttribute PostSearch postSearch) {
+        return postService.getList(postSearch);
     }
 
     // 글 등록
@@ -42,6 +49,7 @@ public class PostController {
     @PostMapping("/posts")
     public void post(@RequestBody @Valid PostCreateDto request){
         // POST -> 200, 201
+        request.validate();
         postService.write(request);
     }
 
@@ -51,8 +59,18 @@ public class PostController {
      * */
     @GetMapping("/posts/{postId}")
     public PostResponse get(@PathVariable(name = "postId") Long id) {
-        PostResponse response = postService.get(id);
         // 서비스 정책에 맞는 응답 클래스 분리
-        return response;
+        return postService.get(id);
     }
+
+    @PatchMapping("/posts/{postId}")
+    public PostResponse edit(@PathVariable Long postId, @RequestBody @Valid PostEdit request) {
+        return postService.edit(postId, request);
+    }
+
+    @DeleteMapping("/posts/{postId}")
+    public void delete(@PathVariable Long postId) {
+        postService.delete(postId);
+    }
+
 }

@@ -1,14 +1,24 @@
 package com.mslog.mslog.service;
 
 import com.mslog.mslog.domain.Post;
+import com.mslog.mslog.domain.PostEditor;
+import com.mslog.mslog.exception.PostNotFound;
 import com.mslog.mslog.repository.PostRepository;
 import com.mslog.mslog.request.PostCreateDto;
+import com.mslog.mslog.request.PostEdit;
+import com.mslog.mslog.request.PostSearch;
 import com.mslog.mslog.response.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import javax.transaction.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -29,9 +39,9 @@ public class PostService {
 
     public PostResponse get(Long id) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 글입니다"));
+                .orElseThrow(() -> new PostNotFound());
 
-        PostResponse response = PostResponse.builder()
+        return PostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
@@ -42,6 +52,34 @@ public class PostService {
          *                  PostService
          * */
 
-        return response;
+    }
+
+    public List<PostResponse> getList(PostSearch postSearch) {
+        return postRepository.getList(postSearch).stream()
+                .map(PostResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public PostResponse edit(Long id, PostEdit postEdit) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFound());
+
+        PostEditor.PostEditorBuilder editorBuilder = post.toEditor();
+
+        PostEditor postEditor = editorBuilder.title(postEdit.getTitle())
+                .content(postEdit.getContent())
+                .build();
+
+        post.edit(postEditor);
+
+        return new PostResponse(post);
+    }
+
+    public void delete(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFound());
+
+        postRepository.delete(post);
     }
 }

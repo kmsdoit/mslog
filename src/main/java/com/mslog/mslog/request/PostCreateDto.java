@@ -1,5 +1,6 @@
 package com.mslog.mslog.request;
 
+import com.mslog.mslog.exception.InvalidRequest;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +31,12 @@ public class PostCreateDto {
     public PostCreateDto(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public void validate() {
+        if(title.contains("바보")){
+            throw new InvalidRequest("title", "제목에 바보를 입력할 수 없습니다");
+        }
     }
 
 
